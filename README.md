@@ -1,81 +1,116 @@
-Speech-to-Speech Translator
+# Speech-to-Speech Translator
 
-A Flask-based web application that transcribes English audio and translates it into multiple languages (e.g., Hindi, Spanish, Tamil, French) using OpenAI's Whisper for transcription and Facebook's M2M100 for translation. The translated text is converted to speech using gTTS, providing a complete speech-to-speech translation pipeline.
-Features
+A powerful Flask-based web application that provides real-time speech-to-speech translation. Upload English audio and get instant transcription, translation to 40+ languages, and audio output in your target language.
 
-Audio Transcription: Converts English audio to text using Whisper (base model).
-Multi-Language Translation: Translates transcribed text to 40+ languages (e.g., hi, es, ta, fr) with M2M100 (facebook/m2m100_418M).
-Text-to-Speech: Generates audio for translated text using gTTS.
-Web Interface: Upload audio files via a simple HTML frontend and receive transcription, translation, and audio output.
-Error Handling: Robust logging and post-processing to correct translation errors (e.g., Hindi-specific fixes).
+## 🚀 Features
 
-Prerequisites
+- **Audio Transcription**: Converts English audio to text using OpenAI's Whisper (base model)
+- **Multi-Language Translation**: Translates to 40+ languages using Facebook's M2M100 (facebook/m2m100_418M)
+- **Text-to-Speech**: Generates audio for translated text using Google Text-to-Speech (gTTS)
+- **Web Interface**: Simple and intuitive HTML frontend for easy file uploads and results
+- **Error Handling**: Robust logging and post-processing with language-specific corrections
+- **Complete Pipeline**: End-to-end speech-to-speech translation in one seamless workflow
 
-Python: Version 3.10 (recommended over Windows Store Python 3.11).
-FFmpeg: Required for Whisper’s audio processing.
-Git: For cloning and managing the repository.
-Virtual Environment: To isolate dependencies.
+## 📋 Prerequisites
 
-Installation
+Before installing, ensure you have:
 
-Clone the Repository:
+- **Python**: Version 3.10 or higher (recommended over Windows Store Python 3.11)
+- **FFmpeg**: Required for Whisper's audio processing
+- **Git**: For cloning and managing the repository
+- **Virtual Environment**: To isolate project dependencies
+
+## 🛠 Installation
+
+### 1. Clone the Repository
+
+```bash
 git clone https://github.com/KuhanM/Speech-to-Speech.git
 cd Speech-to-Speech
+```
 
+### 2. Set Up Virtual Environment
 
-Set Up a Virtual Environment:
+```bash
+# Create virtual environment
 python -m venv venv
-.\venv\Scripts\activate  # Windows
 
+# Activate virtual environment
+# Windows:
+.\venv\Scripts\activate
+# macOS/Linux:
+source venv/bin/activate
+```
 
-Install Dependencies:
+### 3. Install Dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
+### 4. Install FFmpeg
 
-Install FFmpeg:
+**Windows:**
+1. Download from [ffmpeg.org](https://ffmpeg.org)
+2. Extract and add the `bin` folder to your system PATH (e.g., `C:\path\to\ffmpeg\bin`)
+3. Verify installation: `ffmpeg -version`
 
-Download from ffmpeg.org.
-Extract and add the bin folder to your system PATH (e.g., C:\path\to\ffmpeg\bin).
-Verify:ffmpeg -version
+**macOS:**
+```bash
+brew install ffmpeg
+```
 
+**Linux (Ubuntu/Debian):**
+```bash
+sudo apt update
+sudo apt install ffmpeg
+```
 
+### 5. Environment Setup (Optional)
 
-
-Suppress Warnings (Optional):To avoid Hugging Face and TensorFlow warnings:
+To suppress warnings:
+```bash
+# Windows
 set HF_HUB_DISABLE_SYMLINKS_WARNING=1
 set TF_ENABLE_ONEDNN_OPTS=0
 
+# macOS/Linux
+export HF_HUB_DISABLE_SYMLINKS_WARNING=1
+export TF_ENABLE_ONEDNN_OPTS=0
+```
 
+## 🚀 Usage
 
-Usage
+### 1. Start the Application
 
-Run the Application:
+```bash
 python app.py
+```
 
-The server will start at http://localhost:5000.
+The server will start at `http://localhost:5000`
 
-Access the Web Interface:
+### 2. Using the Web Interface
 
-Open http://localhost:5000 in a browser.
-Upload an audio file (e.g., WAV or MP3) containing English speech.
-Select a target language (e.g., Hindi, Spanish, Tamil).
-Click Translate Speech to get:
-Transcribed text (English).
-Translated text (target language).
-Audio file of the translated text.
+1. Open `http://localhost:5000` in your browser
+2. Upload an audio file (WAV, MP3, etc.) containing English speech
+3. Select your target language from the dropdown
+4. Click **"Translate Speech"**
+5. Get your results:
+   - Original transcription (English)
+   - Translated text (target language)
+   - Audio file of the translation
 
+### 3. Example Translation
 
+**Input Audio**: *"I like cats I have two cats at home and I probably see them in two days"*
 
+**Hindi Output**: *"मैं बिल्लियों को पसंद करता हूँ मेरे घर पर दो बिल्लियाँ हैं और मैं शायद उन्हें दो दिन में देखूंगा"*
 
-Example:
+**Spanish Output**: *"Me gustan los gatos, tengo dos gatos en casa y probablemente los vea en dos días"*
 
-Input Audio: "I like cats I have two cats at home and I probably see them in two days"
-Hindi Output: "मैं बिल्लियों को पसंद करता हूँ मेरे घर पर दो बिल्लियाँ हैं और मैं शायद उन्हें दो दिन में देखूंगा"
-Spanish Output: "Me gustan los gatos, tengo dos gatos en casa y probablemente los vea en dos días"
+## 📁 Project Structure
 
-
-
-Project Structure
+```
 Speech-to-Speech/
 ├── .gitignore              # Ignores venv, cache, and temporary files
 ├── Dockerfile              # For containerized deployment
@@ -83,66 +118,95 @@ Speech-to-Speech/
 ├── requirements.txt        # Python dependencies
 ├── templates/
 │   └── index.html          # Frontend HTML interface
-├── README.md               # Project documentation
+└── README.md              # Project documentation
+```
 
-Supported Languages
-The app supports translation to 40+ languages, including:
+## 🌍 Supported Languages
 
-Hindi (hi)
-Spanish (es)
-Tamil (ta)
-French (fr)
-Arabic (ar)
-See app.py (lang_map) for the full list.
+The application supports translation to 40+ languages, including:
 
-Troubleshooting
+| Language | Code | Language | Code |
+|----------|------|----------|------|
+| Hindi | `hi` | Arabic | `ar` |
+| Spanish | `es` | Chinese | `zh` |
+| Tamil | `ta` | Japanese | `ja` |
+| French | `fr` | German | `de` |
+| Portuguese | `pt` | Italian | `it` |
+| Russian | `ru` | Korean | `ko` |
 
-Authentication Errors:
-Use a GitHub Personal Access Token for git push (Settings > Developer settings > Personal access tokens).
+*See `app.py` (`lang_map`) for the complete list of supported languages.*
 
+## 🔧 Troubleshooting
 
-FFmpeg Not Found:
-Ensure FFmpeg is in your PATH and verify with ffmpeg -version.
+### Authentication Errors
+- Use a GitHub Personal Access Token for git operations
+- Go to: Settings → Developer settings → Personal access tokens
 
+### FFmpeg Issues
+- Ensure FFmpeg is in your system PATH
+- Verify with: `ffmpeg -version`
+- Restart your terminal after PATH changes
 
-Translation Errors:
-Check logs in the console for transcription or translation issues.
-Verify audio quality (clear English speech).
+### Translation Errors
+- Check console logs for detailed error messages
+- Ensure audio contains clear English speech
+- Verify audio file format is supported
 
+### Port Conflicts
+If `localhost:5000` is already in use:
 
-Port Conflicts:
-If localhost:5000 is in use:netstat -aon | findstr :5000
-taskkill /PID <pid> /F
+**Windows:**
+```bash
+netstat -aon | findstr :5000
+taskkill /PID <process_id> /F
+```
 
+**Alternative:** Change the port in `app.py`:
+```python
+app.run(host='0.0.0.0', port=8080, debug=True)
+```
 
-Or change the port in app.py (e.g., port=8080).
+## 🤝 Contributing
 
+Contributions are welcome! Here's how to contribute:
 
+1. **Fork** the repository
+2. **Create** a feature branch:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+3. **Commit** your changes:
+   ```bash
+   git commit -m "Add your feature description"
+   ```
+4. **Push** to your fork:
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+5. **Open** a Pull Request on GitHub
 
-Contributing
-Contributions are welcome! To contribute:
+Please ensure your contributions include:
+- Clear documentation
+- Test cases for new features
+- Adherence to the existing code style
 
-Fork the repository.
-Create a branch:git checkout -b feature/your-feature
+## 📄 License
 
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
-Commit changes:git commit -m "Add your feature"
+## 🙏 Acknowledgments
 
+- [OpenAI Whisper](https://github.com/openai/whisper) for audio transcription
+- [Hugging Face Transformers](https://huggingface.co/transformers/) for M2M100 translation model
+- [gTTS](https://gtts.readthedocs.io/) for text-to-speech synthesis
+- [Flask](https://flask.palletsprojects.com/) for the web framework
 
-Push to your fork:git push origin feature/your-feature
+## 📞 Contact
 
+For questions, suggestions, or feedback:
+- **GitHub Issues**: [Open an issue](https://github.com/KuhanM/Speech-to-Speech/issues)
+- **Maintainer**: [KuhanM](https://github.com/KuhanM)
 
-Open a Pull Request on GitHub.
+---
 
-Please follow the Code of Conduct and include tests for new features.
-License
-This project is licensed under the MIT License. See LICENSE for details.
-Acknowledgments
-
-OpenAI Whisper for audio transcription.
-Hugging Face Transformers for M2M100 translation.
-gTTS for text-to-speech.
-Built with Flask.
-
-Contact
-For questions or feedback, open an issue on GitHub or contact KuhanM.
+⭐ **Like this project?** Give it a star on GitHub and share it with others!
