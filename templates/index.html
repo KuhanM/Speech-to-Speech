@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Speech Translator</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: #ffeb3b;
+        }
+
+        .hero {
+            padding: 4rem 2rem;
+            text-align: center;
+            color: white;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #fff, #ffeb3b);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        .upload-section, .translation-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: white;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .file-upload {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 3rem 2rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .file-upload:hover {
+            border-color: #ffeb3b;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .file-upload.dragover {
+            border-color: #ffeb3b;
+            background: rgba(255, 235, 59, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .language-select {
+            margin-bottom: 2rem;
+        }
+
+        .language-select label {
+            display: block;
+            color: white;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .language-select select {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .language-select select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 235, 59, 0.3);
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .progress {
+            margin-top: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            height: 8px;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .result-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+        }
+
+        .result-text {
+            color: white;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .audio-player {
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .status {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-style: italic;
+            margin-top: 1rem;
+        }
+
+        .features {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .features h2 {
+            text-align: center;
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            color: #ffeb3b;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            color: white;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+
+        footer {
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .control-buttons {
+                flex-direction: column;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .file-info {
+            margin-top: 1rem;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .recording-controls {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .record-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 0 1rem;
+        }
+
+        .record-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .record-btn.recording {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 1rem;
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+
+    <header>
+        <nav>
+            <a href="#" class="logo">
+                <i class="fas fa-language"></i>
+                SpeechTranslate
+            </a>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero" id="home">
+        <h1>Universal Speech Translator</h1>
+        <p>Break language barriers with AI-powered speech translation. Upload audio, record your voice, or speak directly to translate into 40+ languages instantly.</p>
+    </section>
+
+    <main class="main-content">
+        <div class="upload-section">
+            <h2 class="section-title">
+                <i class="fas fa-microphone"></i>
+                Audio Input
+            </h2>
+
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('upload')">
+                    <i class="fas fa-upload"></i> Upload File
+                </button>
+                <button class="tab" onclick="switchTab('record')">
+                    <i class="fas fa-microphone"></i> Record Audio
+                </button>
+            </div>
+
+            <div id="upload-tab" class="tab-content active">
+                <div class="file-upload" id="fileUpload">
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                    <h3 style="color: white; margin-bottom: 1rem;">Drop your audio file here</h3>
+                    <p style="color: rgba(255,255,255,0.7); margin-bottom: 1rem;">or click to browse</p>
+                    <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem;">Supports MP3, WAV, M4A, FLAC</p>
+                    <input type="file" id="fileInput" accept=".mp3,.wav,.m4a,.flac" style="display: none;">
+                </div>
+                <div class="file-info" id="fileInfo"></div>
+            </div>
+
+            <div id="record-tab" class="tab-content">
+                <div class="recording-controls">
+                    <p style="color: white; margin-bottom: 1rem;">Click to start recording</p>
+                    <button class="record-btn" id="recordBtn">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button class="btn btn-secondary" id="stopBtn" style="display: none;">
+                        <i class="fas fa-stop"></i> Stop Recording
+                    </button>
+                </div>
+                <div id="recordingInfo" class="file-info"></div>
+            </div>
+
+            <div class="progress" id="progressBar">
+                <div class="progress-bar" id="progressFill"></div>
+            </div>
+            <div class="status" id="status"></div>
+        </div>
+
+        <div class="translation-section">
+            <h2 class="section-title">
+                <i class="fas fa-globe"></i>
+                Translation Settings
+            </h2>
+
+            <div class="language-select">
+                <label for="targetLanguage">Target Language:</label>
+                <select id="targetLanguage">
+                    <option value="es">Spanish (Español)</option>
+                    <option value="fr">French (Français)</option>
+                    <option value="de">German (Deutsch)</option>
+                    <option value="hi">Hindi (हिन्दी)</option>
+                    <option value="ja">Japanese (日本語)</option>
+                    <option value="ko">Korean (한국어)</option>
+                    <option value="ar">Arabic (العربية)</option>
+                    <option value="pt">Portuguese (Português)</option>
+                    <option value="ru">Russian (Русский)</option>
+                    <option value="it">Italian (Italiano)</option>
+                    <option value="nl">Dutch (Nederlands)</option>
+                    <option value="sv">Swedish (Svenska)</option>
+                    <option value="da">Danish (Dansk)</option>
+                    <option value="no">Norwegian (Norsk)</option>
+                    <option value="fi">Finnish (Suomi)</option>
+                    <option value="pl">Polish (Polski)</option>
+                    <option value="cs">Czech (Čeština)</option>
+                    <option value="hu">Hungarian (Magyar)</option>
+                    <option value="ro">Romanian (Română)</option>
+                    <option value="bg">Bulgarian (Български)</option>
+                    <option value="hr">Croatian (Hrvatski)</option>
+                    <option value="sk">Slovak (Slovenčina)</option>
+                    <option value="sl">Slovenian (Slovenščina)</option>
+                    <option value="et">Estonian (Eesti)</option>
+                    <option value="lv">Latvian (Latviešu)</option>
+                    <option value="lt">Lithuanian (Lietuvių)</option>
+                    <option value="mt">Maltese (Malti)</option>
+                    <option value="el">Greek (Ελληνικά)</option>
+                    <option value="tr">Turkish (Türkçe)</option>
+                    <option value="he">Hebrew (עברית)</option>
+                    <option value="th">Thai (ไทย)</option>
+                    <option value="vi">Vietnamese (Tiếng Việt)</option>
+                    <option value="id">Indonesian (Bahasa Indonesia)</option>
+                    <option value="ms">Malay (Bahasa Melayu)</option>
+                    <option value="tl">Filipino (Tagalog)</option>
+                    <option value="sw">Swahili (Kiswahili)</option>
+                    <option value="af">Afrikaans</option>
+                    <option value="ca">Catalan (Català)</option>
+                    <option value="eu">Basque (Euskera)</option>
+                    <option value="gl">Galician (Galego)</option>
+                    <option value="cy">Welsh (Cymraeg)</option>
+                    <option value="ga">Irish (Gaeilge)</option>
+                    <option value="is">Icelandic (Íslenska)</option>
+                    <option value="bn">Bengali (বাংলা)</option>
+                    <option value="ur">Urdu (اردو)</option>
+                    <option value="ta">Tamil (தமிழ்)</option>
+                    <option value="te">Telugu (తెలుగు)</option>
+                    <option value="kn">Kannada (ಕನ್ನಡ)</option>
+                    <option value="ml">Malayalam (മലയാളം)</option>
+                    <option value="gu">Gujarati (ગુજરાતી)</option>
+                    <option value="pa">Punjabi (ਪੰਜਾਬੀ)</option>
+                    <option value="mr">Marathi (मराठी)</option>
+                    <option value="ne">Nepali (नेपाली)</option>
+                    <option value="si">Sinhala (සිංහල)</option>
+                    <option value="my">Myanmar (မြန်မာ)</option>
+                    <option value="km">Khmer (ខ្មែរ)</option>
+                    <option value="lo">Lao (ລາວ)</option>
+                    <option value="ka">Georgian (ქართული)</option>
+                    <option value="am">Amharic (አማርኛ)</option>
+                    <option value="zh">Chinese (中文)</option>
+                </select>
+            </div>
+
+            <div class="control-buttons">
+                <button class="btn btn-primary" id="translateBtn" disabled>
+                    <i class="fas fa-language"></i>
+                    Translate Speech
+                </button>
+                <button class="btn btn-secondary" id="clearBtn">
+                    <i class="fas fa-trash"></i>
+                    Clear All
+                </button>
+            </div>
+
+            <div class="result-section" id="resultSection">
+                <h3 style="color: white; margin-bottom: 1rem;">
+                    <i class="fas fa-file-alt"></i>
+                    Translation Results
+                </h3>
+                <div class="result-text">
+                    <strong>Original Text:</strong>
+                    <p id="originalText"></p>
+                </div>
+                <div class="result-text">
+                    <strong>Translated Text:</strong>
+                    <p id="translatedText"></p>
+                </div>
+                <audio controls class="audio-player" id="audioPlayer" style="display: none;">
+                    <source id="audioSource" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+                <div class="control-buttons">
+                    <button class="btn btn-secondary" id="downloadBtn" style="display: none;">
+                        <i class="fas fa-download"></i>
+                        Download Audio
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <section class="features" id="features">
+        <h2>Why Choose Our Speech Translator?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <i class="fas fa-brain feature-icon"></i>
+                <h3>AI-Powered Accuracy</h3>
+                <p>Advanced Whisper AI technology ensures precise speech recognition and natural-sounding translations across all supported languages.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-bolt feature-icon"></i>
+                <h3>Lightning Fast</h3>
+                <p>Get your translations in seconds, not minutes. Our optimized pipeline processes audio files quickly and efficiently.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-shield-alt feature-icon"></i>
+                <h3>Privacy First</h3>
+                <p>Your audio files are processed securely and never stored permanently. Complete privacy and data protection guaranteed.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-mobile-alt feature-icon"></i>
+                <h3>Mobile Friendly</h3>
+                <p>Works perfectly on all devices - desktop, tablet, or mobile. Translate speech anywhere, anytime.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-globe feature-icon"></i>
+                <h3>40+ Languages</h3>
+                <p>Support for over 40 languages including major world languages, regional dialects, and emerging language pairs.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-music feature-icon"></i>
+                <h3>Multiple Formats</h3>
+                <p>Upload MP3, WAV, M4A, FLAC files or record directly in your browser. Flexible input options for every need.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2024 Universal Speech Translator. Breaking language barriers with AI.</p>
+    </footer>
+
+    <script>
+        // Create animated particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.width = Math.random() * 4 + 2 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            contents.forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`button[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            translateBtn.disabled = true;
+            fileInfo.innerHTML = '';
+            recordingInfo.innerHTML = '';
+            resetResults();
+        }
+
+        // File upload handling
+        const fileUpload = document.getElementById('fileUpload');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const translateBtn = document.getElementById('translateBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const status = document.getElementById('status');
+        const resultSection = document.getElementById('resultSection');
+        const originalText = document.getElementById('originalText');
+        const translatedText = document.getElementById('translatedText');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const audioSource = document.getElementById('audioSource');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        fileUpload.addEventListener('click', () => fileInput.click());
+        fileUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUpload.classList.add('dragover');
+        });
+        fileUpload.addEventListener('dragleave', () => {
+            fileUpload.classList.remove('dragover');
+        });
+        fileUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUpload.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        function handleFileSelect(file) {
+            const allowedTypes = ['audio/mp3', 'audio/wav', 'audio/x-wav', 'audio/m4a', 'audio/flac'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Please select a valid audio file (MP3, WAV, M4A, FLAC)');
+                return;
+            }
+
+            fileInfo.innerHTML = `
+                <p><strong>File:</strong> ${file.name}</p>
+                <p><strong>Size:</strong> ${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                <p><strong>Type:</strong> ${file.type}</p>
+            `;
+            window.selectedFile = file;
+            translateBtn.disabled = false;
+        }
+
+        // Audio recording
+        let mediaRecorder;
+        let audioChunks = [];
+        const recordBtn = document.getElementById('recordBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const recordingInfo = document.getElementById('recordingInfo');
+
+        recordBtn.addEventListener('click', startRecording);
+        stopBtn.addEventListener('click', stopRecording);
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    recordingInfo.innerHTML = `
+                        <p><strong>Recording completed</strong></p>
+                        <p><strong>Duration:</strong> ${Math.round(audioBlob.size / 16000)} seconds (approx)</p>
+                        <p><strong>Size:</strong> ${(audioBlob.size / 1024).toFixed(2)} KB</p>
+                    `;
+                    window.selectedFile = audioBlob;
+                    translateBtn.disabled = false;
+                    stopBtn.style.display = 'none';
+                    recordBtn.classList.remove('recording');
+                    recordBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                    recordBtn.onclick = startRecording;
+                };
+
+                mediaRecorder.start();
+                recordBtn.classList.add('recording');
+                recordBtn.innerHTML = '<i class="fas fa-stop"></i>';
+                recordBtn.onclick = stopRecording;
+                stopBtn.style.display = 'inline-flex';
+                recordingInfo.innerHTML = '<p style="color: #ff6b6b;"><strong>Recording...</strong></p>';
+            } catch (error) {
+                alert('Error accessing microphone: ' + error.message);
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            }
+        }
+
+        // Translation handling
+        translateBtn.addEventListener('click', async () => {
+            if (!window.selectedFile) {
+                alert('Please upload or record an audio file first.');
+                return;
+            }
+
+            const targetLang = document.getElementById('targetLanguage').value;
+            progressBar.style.display = 'block';
+            translateBtn.disabled = true;
+            status.textContent = 'Processing...';
+
+            const formData = new FormData();
+            formData.append('audio_file', window.selectedFile);
+            formData.append('target_language', targetLang);
+
+            try {
+                progressFill.style.width = '30%';
+                status.textContent = 'Transcribing audio...';
+                const response = await fetch('/translate', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    progressFill.style.width = '100%';
+                    status.textContent = 'Translation complete!';
+                    resultSection.style.display = 'block';
+                    originalText.textContent = data.original_text;
+                    translatedText.textContent = data.translated_text;
+                    audioSource.src = data.audio_url;
+                    audioPlayer.style.display = 'block';
+                    audioPlayer.load();
+                    downloadBtn.style.display = 'inline-flex';
+                    downloadBtn.onclick = () => window.location.href = data.audio_url;
+                } else {
+                    status.textContent = 'Error: ' + data.error;
+                    progressFill.style.width = '0%';
+                }
+            } catch (error) {
+                status.textContent = 'Error: ' + error.message;
+                progressFill.style.width = '0%';
+            } finally {
+                setTimeout(() => {
+                    progressBar.style.display = 'none';
+                    progressFill.style.width = '0%';
+                    translateBtn.disabled = false;
+                }, 2000);
+            }
+        });
+
+        // Clear button
+        clearBtn.addEventListener('click', () => {
+            fileInput.value = '';
+            fileInfo.innerHTML = '';
+            recordingInfo.innerHTML = '';
+            window.selectedFile = null;
+            translateBtn.disabled = true;
+            resetResults();
+        });
+
+        function resetResults() {
+            resultSection.style.display = 'none';
+            originalText.textContent = '';
+            translatedText.textContent = '';
+            audioPlayer.style.display = 'none';
+            audioSource.src = '';
+            downloadBtn.style.display = 'none';
+            status.textContent = '';
+        }
+
+        // Initialize particles
+        createParticles();
+    </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+Flask==2.3.3
+flask-cors==4.0.1
+openai-whisper==20231117
+transformers==4.44.2
+gtts==2.5.3
+numpy==1.26.4
+ffmpeg-python==0.2.0
+optree>=0.13.0
